@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - run: cd /var/www/admin-panel-frontend; rm -rf package-lock.json; git pull ; 
-    - run: cd /var/www/admin-panel-frontend; npm install --legacy-peer-deps
-    - run: cd /var/www/admin-panel-frontend; CI=false npm run build
+    - run: cd /var/www/plena-example-dapp/; rm -rf package-lock.json; git pull ; 
+    - run: cd /var/www/plena-example-dapp/; npm install --legacy-peer-deps
+    - run: cd /var/www/plena-example-dapp/; CI=false npm run build
     - run: sudo  chown ubuntu:www-data -R /var/www/plena-example-dapp/build
