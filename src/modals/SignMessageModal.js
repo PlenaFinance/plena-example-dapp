@@ -42,8 +42,8 @@ export default function SignMessageModal({
                 </p>
               </div>
               <div className='flex items-center'>
-                <p className='text-base font-bold w-20'>from:</p>
-                <p className='text-md font-ligh'>{result?.from}</p>
+                <p className='text-base font-bold w-20'>From:</p>
+                <p className=' text-xs font-ligh'>{result?.from}</p>
               </div>
             </div>
           </>
