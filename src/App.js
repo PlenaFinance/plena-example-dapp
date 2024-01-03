@@ -165,7 +165,7 @@ function App() {
   };
   return (
     <>
-      {!walletAddress ? (
+      {walletAddress ? (
         <div className='flex flex-col items-center justify-center h-full'>
           <h1 className='mb-8 text-2xl font-bold'>Welcome to Plena Connect</h1>
           <Button
@@ -176,26 +176,34 @@ function App() {
           </Button>
         </div>
       ) : (
-        <div className=' h-full'>
+        <div className='h-100 flex justify-center items-center'>
+        <div className=' h-4/5 w-72 border-3 border-solid border-[#985AFF] rounded-2xl'>
           <Header disconnect={disconnect} walletAddress={walletAddress} />
-          <div className='flex flex-col items-center justify-center'>
-            <h1 className='mb-8 text-2xl font-bold mt-20'>Methods</h1>
-            <div className='flex flex-col'>
+          <div className='flex flex-col items-center justify-center '>
+            <h1 className='mb-8 text-2xl  mt-20'>Methods</h1>
+            <div className='flex flex-col h-auto'>
               <Button
                 type='primary'
                 onClick={testSignTransaction}
-                className='text-sm font-bold mx-2'>
+                className='text-sm  mx-2 bg-985AFF px-20 py-5 flex justify-center items-center'>
                 Personal Sign
               </Button>
               <Button
                 type='primary'
                 onClick={testSendTransaction}
                 cancelTransaction={cancelTransaction}
-                className='text-sm font-bold mx-2  mt-5'>
-                SendTransaction
+                className='text-sm  mx-2  mt-5 bg-985AFF px-10 py-5 flex justify-center items-center'>
+                Send Transaction
+              </Button>
+              <Button
+              type='primary'
+              onClick={disconnect}
+              className='text-sm  mx-2 font-bold bg-white hover:bg-985AFF text-[#985AFF] border-2 border-solid border-[#985AFF] mt-40 px-10 py-5 flex justify-center items-center'>
+                Disconnect
               </Button>
             </div>
           </div>
+        </div>
         </div>
       )}
       <SendTxnModal

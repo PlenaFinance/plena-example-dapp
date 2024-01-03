@@ -5,7 +5,7 @@ import { shortAddress } from '../utils/shortAddress';
 
 export default function Header({ disconnect, walletAddress }) {
   return (
-    <div className='flex items-start justify-between px-5 py-2'>
+    <div className='flex-col items-start justify-between px-5 py-2'>
       <div className='flex items-center'>
         <Avatar
           icon={<AntDesignOutlined />}
@@ -16,13 +16,13 @@ export default function Header({ disconnect, walletAddress }) {
           {shortAddress(walletAddress || '', 5)}
         </p>
       </div>
-      <div>
+      {/* <div>
         <p
           className='text-sm font-regular my-0 cursor-pointer'
           onClick={disconnect}>
           {'Disconnect'}
         </p>
-      </div>
+      </div> */}
     </div>
   );
 }
