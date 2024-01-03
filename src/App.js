@@ -165,7 +165,7 @@ function App() {
   };
   return (
     <>
-      {walletAddress ? (
+      {!walletAddress ? (
         <div className='flex flex-col items-center justify-center h-full'>
           <h1 className='mb-8 text-2xl font-bold'>Welcome to Plena Connect</h1>
           <Button
