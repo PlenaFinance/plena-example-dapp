@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
 import { Button } from "antd";
 import SendTxnModal from "./modals/SendTxnModal";
-import { ethers, providers } from "ethers";
+import { ethers } from "ethers";
 import Header from "./components/Header";
-import axios from "axios";
 import { usePlenaWallet } from "plena-connect-dapp-sdk";
 import { convertUtf8ToHex } from "@plenaconnect/utils";
 import { eip1271 } from "./helpers/eip1271";
@@ -15,9 +14,7 @@ function App() {
   const [pending, setPending] = useState(false);
   const [isSignModalOpen, setIsSignModalOpen] = useState(false);
   const [isTxnModalOpen, setIsTxnModalOpen] = useState(false);
-  const [address, setAddress] = useState(null);
   const [result, setResult] = useState(null);
-  const [connector, setConnector] = useState(null);
   const { openModal, closeConnection, sendTransaction, walletAddress } =
     usePlenaWallet();
 
@@ -51,9 +48,41 @@ function App() {
     openTxnModal();
     setPending(true);
 
-    const lendingPool = "0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf";
-    const USDC = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
-    const abi1 = [
+    const AAVE_V3_POOL_POLYGON = "0x794a61358D6845594F94dc1DB02A252b5b4814aD";
+    const USDT = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F";
+    const amount = "1000000";
+
+    const aaveABI = [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "asset",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "onBehalfOf",
+            type: "address",
+          },
+          {
+            internalType: "uint16",
+            name: "referralCode",
+            type: "uint16",
+          },
+        ],
+        name: "supply",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ];
+    const erc20ABI = [
       {
         inputs: [
           {
@@ -63,11 +92,11 @@ function App() {
           },
           {
             internalType: "uint256",
-            name: "amount",
+            name: "value",
             type: "uint256",
           },
         ],
-        name: "transfer",
+        name: "approve",
         outputs: [
           {
             internalType: "bool",
@@ -79,27 +108,39 @@ function App() {
         type: "function",
       },
     ];
-    const contract = new ethers.utils.Interface(abi1);
 
-    const txnData1 = contract.encodeFunctionData("transfer", [
-      lendingPool,
-      "1",
+    const approveContract = new ethers.utils.Interface(erc20ABI);
+
+    //Create data for approving token for lending pool
+    const approveData = approveContract.encodeFunctionData("approve", [
+      AAVE_V3_POOL_POLYGON,
+      amount,
     ]);
+
+    const lendContract = new ethers.utils.Interface(aaveABI);
+
+    //Create data for lending on Aave
+    const lendData = lendContract.encodeFunctionData("supply", [
+      USDT,
+      amount,
+      walletAddress,
+      "0",
+    ]);
+
     // Draft transaction
-    const tx: IPlenaTxData = {
-      from: walletAddress,
-      data: [txnData1],
-      to: [USDC],
-      tokens: ["", ""],
-      amounts: ["0x0", "0x0"],
+    const tx = {
+      from: walletAddress, //Plena Wallet Address
+      data: [approveData, lendData], //Encoded data for all transactions in order of execution
+      to: [USDT, AAVE_V3_POOL_POLYGON], //Smart Contract Addresses On which the transactions has to made
+      tokens: ["", ""], // Feature to be launched (Leave empty for now). The Array should be of same length as the above attributes
+      amounts: ["0x0", "0x0"], //Native Token Amounts required in transaction
     };
     try {
       const res = await sendTransaction({
         chain: 137,
-        method: "send_transaction", // personal_sign
+        method: "send_transaction",
         payload: {
           transaction: tx,
-          // todo: payload of transaction
         },
       });
       if (!res?.success) {
@@ -124,11 +165,7 @@ function App() {
     setPending(true);
     try {
       const message = `My email is john@doe.com - ${new Date().toUTCString()}`;
-
-      // encode message (hex)
       const hexMsg = convertUtf8ToHex(message);
-
-      // eth_sign params
       const msgParams = [hexMsg, walletAddress];
       const res = await sendTransaction({
         chain: 137,
